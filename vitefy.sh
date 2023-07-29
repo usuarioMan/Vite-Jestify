@@ -58,7 +58,7 @@ yarn add -D @types/jest
 
 yarn add --dev babel-jest @babel/core @babel/preset-env
 
-cat << EOF > babel.config.js
+cat << EOF > babel.config.cjs
 "module.exports = {
   presets: [['@babel/preset-env', {targets: {node: 'current'}}]],
 };"

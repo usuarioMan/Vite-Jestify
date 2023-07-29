@@ -32,9 +32,7 @@ mkdir -p "src/codeToTest"
 
 # Create a dummy code for testing.
 cat << EOF > src/codeToTest/dummyCode.js
-export const add = (a, b) {
-  return a + b;
-}
+export const add = (a, b) => return a + b;
 EOF
 
 # Create test directory where the jest test resides.
@@ -67,8 +65,13 @@ cat << EOF > babel.config.js
 EOF
 
 cwd=$(pwd)
-osascript -e "tell application \"Terminal\" to do script \"cd '$cwd' && yarn dev\"" \
-          -e "tell application \"System Events\" to keystroke \"t\" using {command down}" \
-          -e "tell application \"Terminal\" to do script \"cd '$cwd' && yarn test; bash\" in tab 2"
-
-
+osascript <<EOD
+tell application "Terminal"
+    activate
+    do script "cd '$cwd' && yarn dev"
+    delay 1
+    tell application "System Events" to keystroke "t" using {command down}
+    delay 0.5
+    do script "cd '$cwd' && yarn test; bash" in selected tab of the front window
+end tell
+EOD

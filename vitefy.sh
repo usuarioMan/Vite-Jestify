@@ -1,5 +1,3 @@
-#!/bin/bash
-
 if [[ $# -lt 2 || "$1" != "--name" ]]; then
   echo "Usage: $0 --name <name_of_the_app>"
   exit 1
@@ -8,24 +6,69 @@ fi
 appName="$2"
 
 # Create the app
-yarn create react-app "$appName" --template react
+yarn create vite "$appName" --template react
 
-cd "$appName"
+# Create enter to the new folder.
+cd $appName
+
+
+# Check if package.json exists
+if [ ! -f "package.json" ]; then
+  echo "package.json does not exist. Exiting..."
+  exit 1
+fi
 
 # Install dependencies
 yarn install
+
+# Check if src directory exists
+if [ ! -d "src" ]; then
+  echo "src directory does not exist. Exiting..."
+  exit 1
+fi
+
+# Create codeToTest directory within src
+mkdir -p "src/codeToTest"
+
+# Create a dummy code for testing.
+cat << EOF > src/codeToTest/dummyCode.js
+export const add = (a, b) {
+  return a + b;
+}
+EOF
+
+# Create test directory where the jest test resides.
+mkdir test
+cat << EOF > test/dummyCode.test.js
+import { add } from '../src/codeToTest/dummyCode.js';
+
+describe('add', () => {
+  test('should correctly add two positive numbers', () => {
+    const result = add(3, 5);
+    expect(result).toBe(8);
+  });
+});
+EOF
+
+# Install jest
 yarn add --dev jest
 
-# Create directory and files for testing
-mkdir src/codeToTest
-echo 'export function add(a, b) {\n  return a + b;\n}\n\nmodule.exports = { add };' > src/codeToTest/dummyCode.js
-
-mkdir test
-echo "import { add } from '../src/codeToTest/dummyCode.js'; describe('add', () => { test('should correctly add two positive numbers', () => { const result = add(3, 5); expect(result).toBe(8); });
-
-test('should correctly add a negative and a positive number', () => { const result = add(-7, 3); expect(result).toBe(-4); }); test('should return the same number when adding zero', () => { const 
-result$
-
-# Update package.json scripts
+# Configure script command to make a jest --watchAll
 jq '.scripts.test = "jest --watchAll"' package.json > tmp.json && mv -f tmp.json package.json
+
+yarn add -D @types/jest
+
+yarn add --dev babel-jest @babel/core @babel/preset-env
+
+cat << EOF > babel.config.js
+"module.exports = {
+  presets: [['@babel/preset-env', {targets: {node: 'current'}}]],
+};"
+EOF
+
+cwd=$(pwd)
+osascript -e "tell application \"Terminal\" to do script \"cd '$cwd' && yarn dev\"" \
+          -e "tell application \"System Events\" to keystroke \"t\" using {command down}" \
+          -e "tell application \"Terminal\" to do script \"cd '$cwd' && yarn test; bash\" in tab 2"
+
 

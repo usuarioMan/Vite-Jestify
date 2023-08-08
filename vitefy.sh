@@ -39,17 +39,25 @@ mkdir -p "src/codeToTest"
 
 # Create a dummy code file for testing
 cat << EOF > src/codeToTest/dummyCode.js
+// This function takes two numbers as arguments and returns their sum.
 export const add = (a, b) => a + b;
 EOF
 
 # Create a test directory for Jest tests
 mkdir test
 cat << EOF > test/dummyCode.test.js
+// Import the 'add' function from the specified module.
 import { add } from '../src/codeToTest/dummyCode.js';
 
+// Create a test suite using the describe function to group related tests.
 describe('add', () => {
+  // Create a test case using the test function to specify the expected behavior.
   test('should correctly add two positive numbers', () => {
+    // Call the 'add' function with arguments 3 and 5, and assign the result to 'result'.
     const result = add(3, 5);
+    
+    // Use the 'expect' function to make assertions about the behavior of the code under test.
+    // Check if the 'result' is equal to the expected value 8.
     expect(result).toBe(8);
   });
 });
@@ -74,6 +82,63 @@ module.exports = {
 };
 EOF
 
+# Create Jest configuration.
+cat << EOF > jest.config.cjs
+module.exports = {
+  setupFiles: ['./jest.setup.js']
+};
+EOF
+
+# Add whatwg-fetch
+yarn add -D whatwg-fetch
+
+# Create Jest Setup.
+cat << EOF > jest.setup.js
+import 'whatwg-fetch';
+EOF
+
+
+cat << EOF > src/codeToTest/asyncDummyCode.js
+// This function fetches comment data from a JSONPlaceholder API.
+// It returns an array containing userId, id, title, and body of the comment.
+export const fetchComment = async () => {
+    try {
+        // Use the fetch function to make an asynchronous request to the API.
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
+        
+        // Parse the JSON response body into an object.
+        const { userId, id, title, body } = await response.json();
+
+        // Return an array containing the extracted data.
+        return [userId, id, title, body];
+
+    } catch (error) {
+        // If an error occurs during the fetch or JSON parsing, log the error and return an error message.
+        console.log(error);
+        return 'Error while fetching comment.';
+    }
+}
+EOF
+
+cat << EOF > test/asyncDummyCode.test.js
+// Import the fetchComment function from the specified module.
+import { fetchComment } from "../src/codeToTest/asyncDummyCode";
+
+// Create a test suite using the describe function to group related tests.
+describe('Testing fetchComment function', () => { 
+    // Create a test case using the test function to specify the expected behavior.
+    test('should fetch a comment and return its properties in a list', async() => {
+        // Call the fetchComment function asynchronously and await its result.
+        const commentProps = await fetchComment();
+        
+        // Use the expect function to make assertions about the behavior of the code under test.
+        // Check if the returned value (commentProps) is an array.
+        expect(Array.isArray(commentProps)).toBe(true);
+    });
+});
+EOF
+
+
 # Get the current working directory
 cwd=$(pwd)
 
@@ -88,3 +153,4 @@ tell application "Terminal"
     do script "cd '$cwd' && yarn test; bash" in selected tab of the front window
 end tell
 EOD
+

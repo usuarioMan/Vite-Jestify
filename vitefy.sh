@@ -97,6 +97,8 @@ cat << EOF > jest.setup.js
 import 'whatwg-fetch';
 EOF
 
+# Install react testing library
+yarn add --dev @testing-library/react
 
 cat << EOF > src/codeToTest/asyncDummyCode.js
 // This function fetches comment data from a JSONPlaceholder API.

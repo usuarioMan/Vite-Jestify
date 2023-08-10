@@ -74,17 +74,25 @@ yarn add -D @types/jest
 
 # Configure Babel for Jest
 yarn add --dev babel-jest @babel/core @babel/preset-env
+yarn add --dev @babel/preset-react
+
+#  Configure jest environment for react dom
+yarn add -D jest-environment-jsdom
 
 # Create Babel configuration
 cat << EOF > babel.config.cjs
 module.exports = {
-  presets: [['@babel/preset-env', {targets: {node: 'current'}}]],
+  presets: [
+    [ '@babel/preset-env', { targets: { esmodules: true } } ],
+    [ '@babel/preset-react', { runtime: 'automatic' } ],
+  ],
 };
 EOF
 
 # Create Jest configuration.
 cat << EOF > jest.config.cjs
 module.exports = {
+  testEnvironment: 'jest-environment-jsdom',
   setupFiles: ['./jest.setup.js']
 };
 EOF
